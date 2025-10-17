@@ -3,11 +3,8 @@
 import { useAppStore } from '@/lib/store/useAppStore';
 import { BookingCategory } from './BookingCategory';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-
 export function BookingsList() {
   const { currentUser, bookings, facilities } = useAppStore();
-  const [expandedAll, setExpandedAll] = useState(false);
 
   // Filter bookings based on user role
   const today = new Date();

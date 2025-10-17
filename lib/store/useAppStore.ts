@@ -1,11 +1,15 @@
 import { create } from 'zustand';
-import { User, Booking, FacilityCategories, Facility, FacilityTimeSettings, MoveInOutSettings, BookingStatus, StatusHistoryEntry, NotificationLog, AuditLog } from '../types';
+import { User, Booking, FacilityCategories, Facility, FacilityTimeSettings, MoveInOutSettings, BookingStatus, StatusHistoryEntry, NotificationLog, AuditLog, WorkflowDefinition, WorkflowExecution } from '../types';
 import { defaultFacilities, sampleBookings } from '../data';
 
 interface AppState {
   // User state
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
+  
+  // Testing mode
+  isTestingMode: boolean;
+  setTestingMode: (enabled: boolean) => void;
   
   // Facility state
   facilities: FacilityCategories;
@@ -58,6 +62,15 @@ interface AppState {
   addAuditLog: (log: Omit<AuditLog, 'id'>) => void;
   getAuditLogs: (filters?: { entity?: string; userId?: string; action?: string }) => AuditLog[];
   
+  // Workflow state
+  workflows: WorkflowDefinition[];
+  workflowExecutions: WorkflowExecution[];
+  addWorkflow: (workflow: Omit<WorkflowDefinition, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateWorkflow: (id: string, updates: Partial<WorkflowDefinition>) => void;
+  deleteWorkflow: (id: string) => void;
+  executeWorkflow: (workflowId: string, bookingId: string) => void;
+  getWorkflowsForFacility: (facilityId: string) => WorkflowDefinition[];
+  
   // Reset function
   logout: () => void;
 }
@@ -66,6 +79,10 @@ export const useAppStore = create<AppState>((set) => ({
   // Initial user state
   currentUser: null,
   setCurrentUser: (user) => set({ currentUser: user }),
+  
+  // Testing mode
+  isTestingMode: false,
+  setTestingMode: (enabled) => set({ isTestingMode: enabled }),
   
   // Initial facility state
   facilities: defaultFacilities,
@@ -145,9 +162,22 @@ export const useAppStore = create<AppState>((set) => ({
   
   // Initial booking state
   bookings: sampleBookings,
-  addBooking: (booking) => set((state) => ({ 
-    bookings: [booking, ...state.bookings] 
-  })),
+  addBooking: (booking) => set((state) => {
+    // Trigger workflows asynchronously when booking is created
+    import('../workflows/triggerManager').then(({ WorkflowTriggerManager }) => {
+      WorkflowTriggerManager.onBookingCreated(
+        booking,
+        state.workflows,
+        state.updateBookingStatus,
+        state.sendNotification,
+        (execution) => set((s) => ({
+          workflowExecutions: [...s.workflowExecutions, execution]
+        }))
+      );
+    });
+    
+    return { bookings: [booking, ...state.bookings] };
+  }),
   removeBooking: (id) => set((state) => ({ 
     bookings: state.bookings.filter(b => b.id !== id) 
   })),
@@ -166,6 +196,23 @@ export const useAppStore = create<AppState>((set) => ({
       details: `Status changed from ${oldStatus} to ${newStatus}${note ? `: ${note}` : ''}`,
       timestamp: new Date().toISOString()
     });
+    
+    // Trigger workflows on status change (don't trigger for workflow-initiated changes)
+    if (booking && updatedBy !== 'workflow') {
+      import('../workflows/triggerManager').then(({ WorkflowTriggerManager }) => {
+        WorkflowTriggerManager.onBookingStatusChanged(
+          { ...booking, status: newStatus },
+          oldStatus as BookingStatus,
+          newStatus,
+          state.workflows,
+          state.updateBookingStatus,
+          state.sendNotification,
+          (execution) => set((s) => ({
+            workflowExecutions: [...s.workflowExecutions, execution]
+          }))
+        );
+      });
+    }
     
     return {
       bookings: state.bookings.map(booking => {
@@ -293,4 +340,95 @@ export const useAppStore = create<AppState>((set) => ({
     selectedFacility: null,
     isLoginModalOpen: true 
   }),
+  
+  // Workflow state
+  workflows: [],
+  workflowExecutions: [],
+  
+  addWorkflow: (workflow) => set((state) => ({
+    workflows: [...state.workflows, {
+      ...workflow,
+      id: `wf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }]
+  })),
+  
+  updateWorkflow: (id, updates) => set((state) => ({
+    workflows: state.workflows.map(wf => 
+      wf.id === id 
+        ? { ...wf, ...updates, updatedAt: new Date().toISOString() }
+        : wf
+    )
+  })),
+  
+  deleteWorkflow: (id) => set((state) => ({
+    workflows: state.workflows.filter(wf => wf.id !== id)
+  })),
+  
+  executeWorkflow: (workflowId, bookingId) => {
+    console.log('[Store] executeWorkflow called', { workflowId, bookingId });
+    const state = useAppStore.getState();
+    const workflow = state.workflows.find(wf => wf.id === workflowId);
+    const booking = state.bookings.find(b => b.id === bookingId);
+    
+    console.log('[Store] Found workflow:', workflow?.name);
+    console.log('[Store] Found booking:', booking?.facility);
+    
+    if (!workflow || !booking) {
+      console.error('[Store] Workflow or booking not found!');
+      return;
+    }
+    
+    // Create initial execution record
+    const executionId = `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const initialExecution: WorkflowExecution = {
+      id: executionId,
+      workflowId: workflow.id,
+      bookingId: booking.id,
+      status: 'running',
+      currentNodeId: null,
+      startedAt: new Date().toISOString(),
+      completedAt: null,
+      executionLog: [],
+    };
+    
+    // Add to state immediately so UI can show it
+    set((state) => ({
+      workflowExecutions: [...state.workflowExecutions, initialExecution]
+    }));
+    
+    console.log('[Store] Importing WorkflowEngine...');
+    import('../workflows/engine').then(({ WorkflowEngine }) => {
+      console.log('[Store] WorkflowEngine imported, executing...');
+      
+      // Create a custom execution that updates state in real-time
+      WorkflowEngine.executeWorkflowWithUpdates(
+        workflow,
+        booking,
+        state.updateBookingStatus,
+        state.sendNotification,
+        executionId,
+        (updatedExecution) => {
+          // Update state after each step
+          set((state) => ({
+            workflowExecutions: state.workflowExecutions.map(exec =>
+              exec.id === executionId ? updatedExecution : exec
+            )
+          }));
+        }
+      ).catch(error => {
+        console.error('[Store] Execution error:', error);
+      });
+    }).catch(error => {
+      console.error('[Store] Import error:', error);
+    });
+  },
+  
+  getWorkflowsForFacility: (facilityId) => {
+    const state = useAppStore.getState();
+    return state.workflows.filter(wf => 
+      wf.isActive && wf.assignedFacilities.includes(facilityId)
+    );
+  },
 }));

@@ -280,5 +280,12 @@ export const userProfiles = {
     initials: 'RU',
     role: 'standard' as const,
     avatar: '/images/gary.jpg'
+  },
+  spock: {
+    name: 'Spock - Testing Mode',
+    email: 'spock@testing.com',
+    initials: '🖖',
+    role: 'bcmtrac' as const,
+    avatar: '/images/spock.jpg'
   }
 };

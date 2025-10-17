@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { Header } from '@/components/layout/Header';
@@ -16,12 +17,25 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 export default function Home() {
+  const router = useRouter();
   const { 
     currentUser, 
     selectedFacility, 
     setBookingModalOpen,
     setMoveInOutModalOpen,
   } = useAppStore();
+
+  // Redirect admins to dashboard on login
+  useEffect(() => {
+    if (currentUser?.role === 'bcmtrac' || currentUser?.role === 'miduser') {
+      router.push('/dashboard');
+    }
+  }, [currentUser, router]);
+
+  // Don't render bookings page if admin is being redirected
+  if (currentUser?.role === 'bcmtrac' || currentUser?.role === 'miduser') {
+    return null;
+  }
 
   const handleMakeBooking = () => {
     if (!selectedFacility) {
@@ -60,7 +74,7 @@ export default function Home() {
           <div className="relative z-10">
             <Header />
           
-          <div className="max-w-[1400px] mx-auto p-6">
+          <div className="w-full mx-auto p-4">
             <div className="grid grid-cols-[350px_1fr] gap-6">
               <FacilitiesSidebar />
 

@@ -7,6 +7,7 @@ import { userProfiles } from '@/lib/data';
 import { UserRole } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Crown, Shield, User } from 'lucide-react';
 import { StrataTracLogo } from '@/components/branding/StrataTracLogo';
 import Image from 'next/image';
@@ -30,15 +31,27 @@ const userTypeConfig = {
     description: 'Make and cancel own bookings',
     gradient: 'from-teal-400 to-teal-600',
   },
+  spock: {
+    icon: User, // Will use emoji instead
+    title: 'Spock - Testing Mode',
+    description: 'Testing suite & bug reporting',
+    gradient: 'from-purple-600 to-purple-800',
+  },
 };
 
 export function LoginModal() {
-  const { isLoginModalOpen, setLoginModalOpen, setCurrentUser } = useAppStore();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const { isLoginModalOpen, setLoginModalOpen, setCurrentUser, setTestingMode } = useAppStore();
+  const [selectedRole, setSelectedRole] = useState<UserRole | 'spock' | null>(null);
 
-  const handleLogin = (role: UserRole) => {
-    const user = userProfiles[role];
+  const handleLogin = (role: UserRole | 'spock') => {
+    const user = userProfiles[role as keyof typeof userProfiles];
     setCurrentUser(user);
+    
+    if (role === 'spock') {
+      setTestingMode(true);
+      window.location.href = '/test';
+    }
+    
     setLoginModalOpen(false);
   };
 
@@ -108,10 +121,11 @@ export function LoginModal() {
           </div>
 
           <div className="space-y-3">
-            {(Object.keys(userTypeConfig) as UserRole[]).map((role) => {
-              const config = userTypeConfig[role];
+            {(Object.keys(userTypeConfig) as (UserRole | 'spock')[]).map((role) => {
+              const config = userTypeConfig[role as keyof typeof userTypeConfig];
               const Icon = config.icon;
               const isSelected = selectedRole === role;
+              const isSpock = role === 'spock';
 
               return (
                 <button
@@ -122,20 +136,41 @@ export function LoginModal() {
                     w-full p-5 rounded-xl border-2 transition-all duration-200
                     ${isSelected 
                       ? 'border-[#00D9FF] bg-[#00D9FF]/10 shadow-lg shadow-[#00D9FF]/20 scale-[1.02]' 
+                      : isSpock
+                      ? 'border-purple-500 bg-purple-500/5 hover:bg-purple-500/10 hover:border-purple-400'
                       : 'border-gray-300 dark:border-gray-600 hover:border-[#00D9FF]/50 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                     }
                   `}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`
-                      p-4 rounded-xl bg-gradient-to-br ${config.gradient} 
-                      flex items-center justify-center shadow-lg
-                    `}>
-                      <Icon className="h-7 w-7 text-white" />
-                    </div>
+                    {/* Avatar or Icon */}
+                    {isSpock ? (
+                      <div className="relative">
+                        <div className="h-16 w-16 rounded-xl overflow-hidden border-2 border-purple-500 shadow-lg">
+                          <Image
+                            src="/images/spock.jpg"
+                            alt="Spock"
+                            width={64}
+                            height={64}
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 bg-purple-600 rounded-full p-1">
+                          <span className="text-lg">🖖</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={`
+                        p-4 rounded-xl bg-gradient-to-br ${config.gradient} 
+                        flex items-center justify-center shadow-lg
+                      `}>
+                        <Icon className="h-7 w-7 text-white" />
+                      </div>
+                    )}
                     <div className="flex-1 text-left">
-                      <h4 className="font-bold text-gray-900 dark:text-white text-xl mb-1">
+                      <h4 className="font-bold text-gray-900 dark:text-white text-xl mb-1 flex items-center gap-2">
                         {config.title}
+                        {isSpock && <Badge className="bg-purple-600 text-white text-xs">BETA</Badge>}
                       </h4>
                       <p className="text-base text-gray-600 dark:text-gray-300">
                         {config.description}

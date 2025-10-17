@@ -17,7 +17,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import { format, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { ExportModal } from '@/components/reports/ExportModal';
 import Link from 'next/link';
 
@@ -27,29 +27,12 @@ export default function ReportsPage() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [dateRange, setDateRange] = useState<'week' | 'month' | 'all'>('month');
 
-  if (!currentUser || (currentUser.role !== 'bcmtrac' && currentUser.role !== 'miduser')) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-        <Header />
-        <div className="max-w-[1400px] mx-auto p-6">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
-            <p className="text-muted-foreground">Reports are only available to administrators.</p>
-            <Link href="/">
-              <Button className="mt-4">Back to Home</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const handleRefresh = () => {
     setIsRefreshing(true);
     setTimeout(() => setIsRefreshing(false), 500);
   };
 
-  // Calculate stats
+  // Calculate stats - Hook must be called before any returns
   const stats = useMemo(() => {
     // Filter by date range
     const now = new Date();
@@ -138,6 +121,24 @@ export default function ReportsPage() {
     cancelled: 'bg-red-500',
     rejected: 'bg-red-700'
   };
+
+  // Access control check - must be after all hooks
+  if (!currentUser || (currentUser.role !== 'bcmtrac' && currentUser.role !== 'miduser')) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <Header />
+        <div className="max-w-[1400px] mx-auto p-6">
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">Access Denied</h2>
+            <p className="text-muted-foreground">Reports are only available to administrators.</p>
+            <Link href="/">
+              <Button className="mt-4">Back to Home</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

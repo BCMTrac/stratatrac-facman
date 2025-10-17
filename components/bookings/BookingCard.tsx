@@ -3,12 +3,13 @@
 import { Booking } from '@/lib/types';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { format } from 'date-fns';
-import { Calendar, Clock, User, MapPin, X } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, X, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { BookingDetailsModal } from './BookingDetailsModal';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 interface BookingCardProps {
   booking: Booking;
@@ -151,6 +152,25 @@ export function BookingCard({ booking }: BookingCardProps) {
             </p>
           </div>
         )}
+        
+        <div className="mt-3 pt-3 border-t border-border flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Link href={`/booking?id=${booking.id}`} className="flex-1">
+            <Button variant="outline" size="sm" className="w-full">
+              <ArrowRight className="h-4 w-4 mr-2" />
+              View Details
+            </Button>
+          </Link>
+          {canCancelBooking && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancelBooking}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+          )}
+        </div>
       </div>
     </>
   );

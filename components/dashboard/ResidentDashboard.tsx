@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
   Clock,
-  CheckCircle, 
-  XCircle,
+  CheckCircle,
   Truck,
   User,
   Plus,

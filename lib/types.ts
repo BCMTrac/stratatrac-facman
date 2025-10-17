@@ -124,6 +124,50 @@ export interface MoveInOutSettings {
   maxMoversAllowed: number;
 }
 
+export interface MoveInOutFormData {
+  // Step 1
+  moveType: string;
+  moveDate: string;
+  moveTime: string;
+  moveDuration: string;
+  // Step 2
+  residentName: string;
+  residentUnit: string;
+  residentEmail: string;
+  residentPhone: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  // Step 3
+  movingCompany: string;
+  companyContact: string;
+  companyPhone: string;
+  vehicleRego: string;
+  vehicleType: string;
+  numMovers: number;
+  // Step 4
+  loadingDock: boolean;
+  serviceElevator: boolean;
+  visitorParking: boolean;
+  movingTrolleys: boolean;
+  dockSelection: string;
+  parkingBay: string;
+  // Step 5
+  insuranceConfirmed: boolean;
+  insuranceProvider: string;
+  policyNumber: string;
+  coverageAmount: string;
+  // Step 6
+  specialItems: string;
+  accessNotes: string;
+  additionalRequirements: string;
+  // Step 7
+  paymentMethod: string;
+  depositAmount: number;
+  refundBSB: string;
+  refundAccount: string;
+  termsAccepted: boolean;
+}
+
 export interface MoveInOutRequest {
   id: string;
   type: 'in' | 'out';
@@ -163,4 +207,53 @@ export interface MoveInOutRequest {
   status: 'pending' | 'approved' | 'rejected' | 'completed';
   createdAt: string;
   createdBy: string;
+}
+
+// Workflow types
+export interface WorkflowNode {
+  id: string;
+  type: 'start' | 'status' | 'approval' | 'notification' | 'condition' | 'end';
+  data: any;
+  position: { x: number; y: number };
+}
+
+export interface WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;
+  animated?: boolean;
+}
+
+export interface WorkflowDefinition {
+  id: string;
+  name: string;
+  description: string;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  assignedFacilities: string[]; // facility IDs
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+}
+
+export interface WorkflowExecution {
+  id: string;
+  workflowId: string;
+  bookingId: string;
+  status: 'running' | 'completed' | 'failed';
+  currentNodeId: string | null;
+  startedAt: string;
+  completedAt: string | null;
+  executionLog: WorkflowExecutionLogEntry[];
+}
+
+export interface WorkflowExecutionLogEntry {
+  nodeId: string;
+  nodeType: string;
+  timestamp: string;
+  action: string;
+  result: 'success' | 'failure';
+  details: string;
 }

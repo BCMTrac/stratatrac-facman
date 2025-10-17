@@ -6,6 +6,9 @@ import { NotificationsSidebar } from '@/components/notifications/NotificationsSi
 import { AdminDashboard } from '@/components/dashboard/AdminDashboard';
 import { ManagerDashboard } from '@/components/dashboard/ManagerDashboard';
 import { ResidentDashboard } from '@/components/dashboard/ResidentDashboard';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { currentUser } = useAppStore();

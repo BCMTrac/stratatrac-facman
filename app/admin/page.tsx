@@ -10,17 +10,21 @@ import {
   Truck,
   ArrowLeft,
   Building2,
-  Bell
+  Bell,
+  Workflow
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { ConfigureFacilitiesModal } from '@/components/facilities/ConfigureFacilitiesModal';
 import { AddCategoryModal } from '@/components/facilities/AddCategoryModal';
 import { MoveInOutSettingsModal } from '@/components/move-in-out/MoveInOutSettingsModal';
 import { ConciergeSettingsModal } from '@/components/concierge/ConciergeSettingsModal';
 import { BuildingSettingsModal } from '@/components/building/BuildingSettingsModal';
 import { SystemSettingsModal } from '@/components/system/SystemSettingsModal';
+import { WorkflowManagementModal } from '@/components/workflow/WorkflowManagementModal';
 
 export default function AdminPage() {
+  const [isWorkflowModalOpen, setIsWorkflowModalOpen] = useState(false);
   const { 
     currentUser,
     setConfigureFacilitiesModalOpen,
@@ -67,6 +71,7 @@ export default function AdminPage() {
       <ConciergeSettingsModal />
       <BuildingSettingsModal />
       <SystemSettingsModal />
+      <WorkflowManagementModal isOpen={isWorkflowModalOpen} onClose={() => setIsWorkflowModalOpen(false)} />
       
       <div className="min-h-screen bg-[#001F3F] relative">
         {/* Background Image */}
@@ -84,10 +89,10 @@ export default function AdminPage() {
         <div className="max-w-[1400px] mx-auto p-6">
           {/* Page Header */}
           <div className="mb-6 bg-[#002850]/90 backdrop-blur-sm border-2 border-[#00D9FF]/30 rounded-xl p-6 shadow-2xl">
-            <Link href="/">
-              <Button variant="outline" size="sm" className="mb-4 border-[#00D9FF] text-[#00D9FF] hover:bg-[#00D9FF] hover:text-white">
+            <Link href="/dashboard">
+              <Button variant="outline" size="sm" className="mb-4 border-[#00D9FF] text-[#00D9FF] hover:bg-[#00D9FF] hover:text-[#001F3F] bg-[#001F3F] font-semibold">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
+                Back to Dashboard
               </Button>
             </Link>
             <h1 className="text-3xl font-bold flex items-center gap-2 mb-2 text-white">
@@ -329,6 +334,46 @@ export default function AdminPage() {
                 </ul>
               </CardContent>
             </Card>
+
+            {/* Workflow Management Card */}
+            <Link href="/workflows">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer hover:scale-[1.02]">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-cyan-500/10 rounded-lg">
+                    <Workflow className="h-6 w-6 text-cyan-600" />
+                  </div>
+                  <div>
+                    <CardTitle>Workflow Management</CardTitle>
+                    <CardDescription>Configure workflows</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Design approval workflows, configure multi-stage approvals, and automate communications.
+                </p>
+                <ul className="text-sm space-y-2">
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-cyan-600 rounded-full"></span>
+                    Multi-level approvals
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-cyan-600 rounded-full"></span>
+                    Conditional logic
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-cyan-600 rounded-full"></span>
+                    Auto-notifications
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-cyan-600 rounded-full"></span>
+                    Visual builder
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+              </Link>
 
           </div>
 

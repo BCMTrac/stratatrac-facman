@@ -3,11 +3,11 @@
 import { useAppStore } from '@/lib/store/useAppStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
   Clock, 
   CheckCircle, 
-  XCircle, 
   AlertCircle,
   Users,
   TrendingUp,
@@ -15,7 +15,8 @@ import {
   MessageSquare,
   Truck,
   Bell,
-  Activity
+  Activity,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { BOOKING_STATUSES } from '@/lib/statusConfig';
@@ -49,6 +50,18 @@ export function AdminDashboard() {
 
   return (
     <div className="max-w-[1400px] mx-auto p-6 space-y-6">
+      {/* Back Button */}
+      <Link href="/">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="border-[#00D9FF] text-[#00D9FF] hover:bg-[#00D9FF] hover:text-[#001F3F] bg-[#001F3F] font-semibold"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Bookings
+        </Button>
+      </Link>
+      
       {/* Header */}
       <div className="bg-[#002850]/90 backdrop-blur-sm border-2 border-[#00D9FF]/30 rounded-xl p-6 shadow-2xl">
         <h1 className="text-3xl font-bold text-white flex items-center gap-3">
