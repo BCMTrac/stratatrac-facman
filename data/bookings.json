@@ -1,0 +1,156 @@
+[
+  {
+    "id": "BK001",
+    "facility": "Clubhouse",
+    "category": "recreation",
+    "date": "2025-10-20",
+    "startTime": "14:00",
+    "endTime": "16:00",
+    "time": "14:00",
+    "duration": "2 hours",
+    "durationMinutes": 120,
+    "user": {
+      "name": "John Smith",
+      "unit": "A101"
+    },
+    "purpose": "Birthday Party",
+    "createdBy": "resident@example.com",
+    "status": "confirmed",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2025-10-15T10:00:00Z",
+        "updatedBy": "resident@example.com",
+        "note": "Booking created"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2025-10-16T09:30:00Z",
+        "updatedBy": "manager@stratamanagement.com",
+        "note": "Approved by facility manager"
+      },
+      {
+        "status": "confirmed",
+        "timestamp": "2025-10-16T14:00:00Z",
+        "updatedBy": "admin@stratamanagement.com",
+        "note": "Payment received, booking confirmed"
+      }
+    ]
+  },
+  {
+    "id": "BK002",
+    "facility": "Tennis Court 1",
+    "category": "sports",
+    "date": "2025-10-18",
+    "startTime": "09:00",
+    "endTime": "10:00",
+    "time": "09:00",
+    "duration": "1 hour",
+    "durationMinutes": 60,
+    "user": {
+      "name": "Sarah Johnson",
+      "unit": "B202"
+    },
+    "purpose": "Tennis Practice",
+    "createdBy": "sarah@example.com",
+    "status": "approved",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2025-10-17T08:00:00Z",
+        "updatedBy": "sarah@example.com",
+        "note": "Booking created"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2025-10-17T10:00:00Z",
+        "updatedBy": "manager@stratamanagement.com",
+        "note": "Approved"
+      }
+    ]
+  },
+  {
+    "id": "BK003",
+    "facility": "Swimming Pool",
+    "category": "sports",
+    "date": "2025-10-22",
+    "startTime": "15:00",
+    "endTime": "17:00",
+    "time": "15:00",
+    "duration": "2 hours",
+    "durationMinutes": 120,
+    "user": {
+      "name": "Mike Brown",
+      "unit": "C303"
+    },
+    "purpose": "Swimming Lessons",
+    "createdBy": "mike@example.com",
+    "status": "pending",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2025-10-17T11:00:00Z",
+        "updatedBy": "mike@example.com",
+        "note": "Awaiting approval"
+      }
+    ]
+  },
+  {
+    "id": "BK004",
+    "facility": "Treadmill 1",
+    "category": "gym",
+    "date": "2025-10-19",
+    "startTime": "06:00",
+    "endTime": "07:00",
+    "time": "06:00",
+    "duration": "1 hour",
+    "durationMinutes": 60,
+    "user": {
+      "name": "David Lee",
+      "unit": "D404"
+    },
+    "purpose": "Morning Workout",
+    "createdBy": "david@example.com",
+    "status": "confirmed",
+    "statusHistory": [
+      {
+        "status": "confirmed",
+        "timestamp": "2025-10-17T12:00:00Z",
+        "updatedBy": "david@example.com",
+        "note": "Auto-confirmed (gym equipment)"
+      }
+    ]
+  },
+  {
+    "id": "BK005",
+    "facility": "BBQ Area 1",
+    "category": "recreation",
+    "date": "2025-10-25",
+    "startTime": "12:00",
+    "endTime": "18:00",
+    "time": "12:00",
+    "duration": "6 hours",
+    "durationMinutes": 360,
+    "user": {
+      "name": "John Smith",
+      "unit": "A101"
+    },
+    "purpose": "Family BBQ",
+    "createdBy": "resident@example.com",
+    "status": "approved",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2025-10-17T13:00:00Z",
+        "updatedBy": "resident@example.com",
+        "note": "Booking created"
+      },
+      {
+        "status": "approved",
+        "timestamp": "2025-10-17T14:00:00Z",
+        "updatedBy": "manager@stratamanagement.com",
+        "note": "Approved"
+      }
+    ]
+  }
+]

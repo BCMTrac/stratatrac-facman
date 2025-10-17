@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { WorkflowToastNotifier } from "@/components/workflow/WorkflowToastNotifier";
 import { WorkflowExecutionToasts } from "@/components/workflow/WorkflowExecutionToasts";
+import { DataLoader } from "@/components/shared/DataLoader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <DataLoader />
         {children}
         <WorkflowToastNotifier />
         <WorkflowExecutionToasts />

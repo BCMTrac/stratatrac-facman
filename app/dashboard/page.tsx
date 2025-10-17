@@ -6,6 +6,7 @@ import { NotificationsSidebar } from '@/components/notifications/NotificationsSi
 import { AdminDashboard } from '@/components/dashboard/AdminDashboard';
 import { ManagerDashboard } from '@/components/dashboard/ManagerDashboard';
 import { ResidentDashboard } from '@/components/dashboard/ResidentDashboard';
+import { AnimatedDashboard } from '@/components/dashboard/AnimatedDashboard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -45,7 +46,20 @@ export default function DashboardPage() {
       
       <div className="relative z-10">
         <Header />
-        {renderDashboard()}
+        
+        {/* Animated Request Dashboard */}
+        <div className="p-6">
+          <AnimatedDashboard />
+        </div>
+
+        {/* Divider */}
+        <div className="mx-6 my-8 border-t border-[#00D9FF]/20" />
+
+        {/* Original Dashboard */}
+        <div className="px-6 pb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">Facility Management</h2>
+          {renderDashboard()}
+        </div>
       </div>
     </div>
     </>

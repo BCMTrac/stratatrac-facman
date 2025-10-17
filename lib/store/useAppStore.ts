@@ -26,6 +26,8 @@ interface AppState {
   
   // Booking state
   bookings: Booking[];
+  loadBookings: () => Promise<void>;
+  saveBookings: () => Promise<void>;
   addBooking: (booking: Booking) => void;
   removeBooking: (id: string) => void;
   updateBookingStatus: (bookingId: string, newStatus: BookingStatus, updatedBy: string, note?: string) => void;
@@ -160,8 +162,35 @@ export const useAppStore = create<AppState>((set) => ({
     return { facilities: remaining };
   }),
   
-  // Initial booking state
-  bookings: sampleBookings,
+  // Initial booking state - will be loaded from API
+  bookings: [],
+  
+  // Load bookings from persistent storage
+  loadBookings: async () => {
+    try {
+      const response = await fetch('/api/bookings');
+      const bookings = await response.json();
+      set({ bookings });
+    } catch (error) {
+      console.error('Failed to load bookings:', error);
+      // Fallback to sample data
+      set({ bookings: sampleBookings });
+    }
+  },
+  
+  // Save bookings to persistent storage
+  saveBookings: async () => {
+    try {
+      const state = useAppStore.getState();
+      await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(state.bookings)
+      });
+    } catch (error) {
+      console.error('Failed to save bookings:', error);
+    }
+  },
   addBooking: (booking) => set((state) => {
     // Trigger workflows asynchronously when booking is created
     import('../workflows/triggerManager').then(({ WorkflowTriggerManager }) => {
@@ -176,7 +205,16 @@ export const useAppStore = create<AppState>((set) => ({
       );
     });
     
-    return { bookings: [booking, ...state.bookings] };
+    const newBookings = [booking, ...state.bookings];
+    
+    // Auto-save to file
+    fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newBookings)
+    }).catch(console.error);
+    
+    return { bookings: newBookings };
   }),
   removeBooking: (id) => set((state) => ({ 
     bookings: state.bookings.filter(b => b.id !== id) 
