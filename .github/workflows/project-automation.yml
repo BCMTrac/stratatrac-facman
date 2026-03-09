@@ -8,7 +8,7 @@ jobs:
   add-to-board:
     runs-on: ubuntu-latest
     steps:
-      - name: Add issue, set Start Date and Story Points
+      - name: Add issue, set Start Date, Story Points, and Priority
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.AUTOMATION_PAT }}
@@ -26,6 +26,7 @@ jobs:
                       nodes {
                         ... on ProjectV2Field            { id name dataType }
                         ... on ProjectV2SingleSelectField { id name options { id name } }
+                        ... on ProjectV2NumberField       { id name }
                       }
                     }
                   }
@@ -39,6 +40,7 @@ jobs:
 
             const startDateField  = fields.find(f => f.name === "Start Date");
             const storyPointField = fields.find(f => f.name === "Story Points");
+            const priorityField   = fields.find(f => f.name === "Priority");
 
             const addRes = await github.graphql(`
               mutation($p: ID!, $i: ID!) {
@@ -64,13 +66,11 @@ jobs:
             if (storyPointField) {
               let points = 0;
 
-              // 1 — sp: label (manually added)
               const spLabel = issue.labels.find(l => /^sp:\d+$/i.test(l.name));
               if (spLabel) {
                 points = parseInt(spLabel.name.split(":")[1], 10);
               }
 
-              // 2 — story points from issue form template body
               if (!points && issue.body) {
                 const m = issue.body.match(/###\s*Story Points\s*[\r\n]+\s*(\d+)/);
                 if (m) {
@@ -97,5 +97,22 @@ jobs:
               }
             }
 
+            if (priorityField && priorityField.options && issue.body) {
+              const m = issue.body.match(/###\s*Priority\s*[\r\n]+\s*(.+)/);
+              if (m) {
+                const priorityText = m[1].trim();
+                const option = priorityField.options.find(o => o.name.toLowerCase() === priorityText.toLowerCase());
+                if (option) {
+                  updates.push(github.graphql(`
+                    mutation($p: ID!, $i: ID!, $f: ID!, $v: ProjectV2FieldValue!) {
+                      updateProjectV2ItemFieldValue(input: { projectId: $p, itemId: $i, fieldId: $f, value: $v }) {
+                        projectV2Item { id }
+                      }
+                    }
+                  `, { p: projectId, i: itemId, f: priorityField.id, v: { singleSelectOptionId: option.id } }));
+                }
+              }
+            }
+
             await Promise.all(updates);
-            console.log(`✓ Issue #${issue.number} added — Start Date set, Story Points synced.`);
+            console.log(`✓ Issue #${issue.number} added — Start Date, Story Points, and Priority synced.`);
